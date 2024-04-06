@@ -15,5 +15,6 @@ type GormUserRepo struct {
 }
 
 func NewGormUserRepo(db *gorm.DB) UserRepo {
+
 	return &GormUserRepo{AbstractRepository: adapter.NewGormRepository[entities.User](db)}
 }

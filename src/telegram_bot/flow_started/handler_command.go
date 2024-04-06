@@ -6,13 +6,13 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func LoadHandlerHello() map[any]func(m tele.Context) error {
+func LoadHandlerStarted() map[any]func(m tele.Context) error {
 	commandMap := make(map[any]func(c tele.Context) error)
 
 	// command
 	commandMap["/start"] = started.StartedHandle
 
-	// button
+	// keyboard
 	commandMap[&keyboard.SelectorPrev] = started.SelectorPrevHandler
 	commandMap[&keyboard.SelectorNext] = started.SelectorNextHandler
 	commandMap[&keyboard.BtnHelp] = started.BtnHelpHandler

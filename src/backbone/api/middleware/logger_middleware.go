@@ -2,40 +2,76 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/labstack/echo/v4"
-	"go-tel/src/backbone/service_layer"
+	"go-tel/src/backbone/helpers/colors"
+	"go-tel/src/backbone/helpers/logger"
 	"time"
 )
 
 // LoggerMiddleware logs the details of each request.
 func LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		start := time.Now()
-
+		currentTime := time.Now()
 		err := next(c)
-
-		elapsed := time.Since(start)
+		elapsed := fmt.Sprintf("%.3f", time.Since(currentTime).Seconds())
 
 		req := c.Request()
 		res := c.Response()
-		methodColor := color.New(color.FgGreen).SprintFunc()
-		pathColor := color.New(color.FgCyan).SprintFunc()
-		statusColor := color.New(color.FgYellow).SprintFunc()
-		elapsedColor := color.New(color.FgMagenta).SprintFunc()
-		errorColor := color.New(color.FgRed).SprintFunc()
+		var statusCode int
+		var messageError string
+		if err != nil {
+			statusCode = 500
+			messageError = err.Error()
+		} else {
+			statusCode = res.Status
+		}
+		statusCodeServer := []int{500, 501, 502, 503, 504, 505, 506, 507, 508, 510, 511}
 
-		fmt.Printf("Method: %s Path: %s Status: %s Time: %s error: %s\n",
-			methodColor(req.Method),
-			pathColor(req.URL.Path),
-			statusColor(res.Status),
-			elapsedColor(elapsed),
-			errorColor(err))
+		if err != nil {
+			logger.Error(fmt.Sprintf("%s: %s  %s: %s       %s: %s   %s: %s %s: %s",
+				colors.GreenColor("Method"),
+				req.Method,
+				colors.YellowColor("STATUS"),
+				colors.RedColor(res.Status),
+				colors.MagentaColor("TIME"),
+				elapsed,
+				colors.PrimaryColor("URL"),
+				req.URL.Path,
+				colors.RedColor("MESSAGE"),
+				colors.RedColor(messageError),
+			))
+		} else {
+			isError := false
+			for _, code := range statusCodeServer {
+				if statusCode == code {
+					isError = true
+					break
+				}
+			}
 
+			if isError {
+				logger.Error(fmt.Sprintf("%s: %s  %s: %s       %s: %s   %s: %s",
+					colors.GreenColor("Method"),
+					req.Method,
+					colors.YellowColor("STATUS"),
+					colors.RedColor(res.Status),
+					colors.MagentaColor("TIME"),
+					elapsed,
+					colors.PrimaryColor("URL"),
+					req.URL.Path))
+			} else {
+				logger.Info(fmt.Sprintf("%s: %s  %s: %s       %s: %s   %s: %s",
+					colors.GreenColor("Method"),
+					req.Method,
+					colors.YellowColor("STATUS"),
+					colors.WhiteColor(res.Status),
+					colors.MagentaColor("TIME"),
+					elapsed,
+					colors.PrimaryColor("URL"),
+					req.URL.Path,
+				))
+			}
+		}
 		return err
 	}
-}
-
-func NewAPIRouter(InitializerSwagger bool) *service_layer.APIRouter {
-	return &service_layer.APIRouter{InitializerSwagger: InitializerSwagger}
 }

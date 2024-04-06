@@ -13,8 +13,7 @@ type IBaseEvent interface {
 
 type Command interface {
 	GetDependencies() []string
-	SetRequest(request echo.Context)
-	CommandHandler(dependencies map[string]any) error
+	SetDependencies(dependencies []string)
 }
 
 type CommandHandles struct {
@@ -23,11 +22,11 @@ type CommandHandles struct {
 }
 
 func (c *CommandHandles) GetDependencies() []string {
+
 	return c.Dependencies
 }
 func (c *CommandHandles) SetDependencies(dependencies []string) {
 	c.Dependencies = dependencies
 }
-func (c *CommandHandles) SetRequest(request echo.Context) {
-	c.Request = request
-}
+
+type FuncHandler func(c echo.Context, command Command, dependencies map[string]any) error

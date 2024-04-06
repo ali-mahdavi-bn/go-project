@@ -7,28 +7,26 @@ import (
 	"go-tel/src/backbone/helpers/errors_handler"
 	"go-tel/src/backbone/service_layer"
 	"go-tel/src/products/adapter/repositories"
+	"go-tel/src/products/domain"
 	"go-tel/src/products/domain/entities"
 	"gorm.io/gorm"
 	"net/http"
 )
 
-type HelloCommand struct {
-	service_layer.CommandHandles
-}
-
-func NewHelloCommand(request echo.Context) *HelloCommand {
-	dependencies := []string{
+func NewHelloCommand(a string) *domain.HelloCommand {
+	helloCmd := &domain.HelloCommand{
+		Ali: a,
+	}
+	helloCmd.SetDependencies([]string{
 		"uow",
 		"request",
-	}
-	helloCmd := &HelloCommand{}
-	helloCmd.SetRequest(request)
-	helloCmd.SetDependencies(dependencies)
+	})
 	return helloCmd
 }
 
-func (c *HelloCommand) CommandHandler(dependencies map[string]any) error {
-	uow := dependencies["uow"].(src.GormUnitOfWork)
+func HelloHandler(c echo.Context, command service_layer.Command, dependencies map[string]any) error {
+	uow := dependencies["uow"].(src.UnitOfWork)
+
 	user4 := uow.Transaction(func(tx *gorm.DB) (any, error) {
 		b := repositories.NewGormUserRepo(tx)
 		id, err := b.ByID(context.Background(), 4)
@@ -41,9 +39,11 @@ func (c *HelloCommand) CommandHandler(dependencies map[string]any) error {
 		data, err := errors_handler.ErrorExistOrSuccess(id, err)
 		return data, err
 	})
+
 	a := []entities.User{
 		user3.(entities.User),
 		user4.(entities.User),
 	}
-	return c.Request.JSON(http.StatusOK, a)
+
+	return c.JSON(http.StatusOK, a)
 }

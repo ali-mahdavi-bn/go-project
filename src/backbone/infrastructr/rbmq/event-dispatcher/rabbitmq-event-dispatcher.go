@@ -2,7 +2,7 @@ package event_dispatcher
 
 import (
 	"github.com/rozturac/rmqc"
-	"go-tel/src/backbone/application/consts"
+	"go-tel/src/backbone/application/constans"
 	"go-tel/src/backbone/service_layer"
 	"reflect"
 )
@@ -20,6 +20,6 @@ func (handler RabbitMQEventDispatcher) Dispatch(events []service_layer.IBaseEven
 	for _, event := range events {
 		t := reflect.TypeOf(event)
 		eventName := t.Elem().Name()
-		handler.rbt.Publish(consts.AppName, eventName, event)
+		handler.rbt.Publish(constans.AppName, eventName, event)
 	}
 }

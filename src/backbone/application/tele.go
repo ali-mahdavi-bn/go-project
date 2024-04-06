@@ -7,7 +7,11 @@ import (
 	"time"
 )
 
-func TelegramBot() *tele.Bot {
+type Telegram struct {
+	bot *tele.Bot
+}
+
+func NewTelegram() {
 	pref := tele.Settings{
 		Token:  "7066018155:AAGTr1TPb7N_bbj2ASxarrLzl85xVQ4sXww",
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
@@ -16,20 +20,29 @@ func TelegramBot() *tele.Bot {
 	b, err := tele.NewBot(pref)
 	if err != nil {
 		log.Fatal(err)
-		return nil
 	}
-	return b
+
+	telegram := Telegram{
+		bot: b,
+	}
+	telegram.Start()
 }
 
-func InitTelegram(bot *tele.Bot) {
+func (t *Telegram) addMiddleware() {
+	t.bot.Use(middleware.Logger())
+	t.bot.Use(middleware.AutoRespond())
+}
+func (t *Telegram) addHandlers() {
+	LoadHandlers(t.bot)
+}
 
+func (t *Telegram) Start() {
 	// middleware
-	bot.Use(middleware.Logger())
-	bot.Use(middleware.AutoRespond())
+	t.addMiddleware()
 
 	// Load Handler
-	LoadHandler(bot)
+	t.addHandlers()
 
-	// start app
-	bot.Start()
+	// start telegram bot
+	t.bot.Start()
 }

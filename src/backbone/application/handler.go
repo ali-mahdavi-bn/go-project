@@ -5,8 +5,8 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func LoadHandler(bot *tele.Bot) {
-	for command, handler := range flow_started.LoadHandlerHello() {
+func LoadHandlers(bot *tele.Bot) {
+	for command, handler := range flow_started.LoadHandlerStarted() {
 		bot.Handle(command, handler)
 	}
 }

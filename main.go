@@ -3,16 +3,12 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 */
 package main
 
-import (
-	"go-tel/src/backbone/application"
-)
+import "go-tel/src/backbone/application"
 
 func main() {
-	// bot telegram
-	//bot := application.TelegramBot()
-	//go application.InitTelegram(bot)
+	// telegram bot
+	//go application.NewTelegram()
 
 	// app
-
-	application.InitAppEcho()
+	application.NewApp()
 }

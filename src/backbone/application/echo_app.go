@@ -9,18 +9,32 @@ import (
 	"go-tel/src/backbone/service_layer"
 )
 
-func InitAppEcho() {
-	e := echo.New()
+type App struct {
+	app *echo.Echo
+}
 
+func (a *App) addMiddleware() {
+	a.app.Use(echo_middleware.LoggerMiddleware)
+}
+func (a *App) initRoute() {
+	apiRouter := service_layer.APIRouter{Router: a.app}
+	api.InitRoute(apiRouter.Group("/api"))
+	a.app.GET("/swagger/*", echoSwagger.WrapHandler)
+}
+func (a *App) Start() {
 	// middleware
-	e.Use(echo_middleware.LoggerMiddleware)
+	a.addMiddleware()
 
 	// rotes
-	apiRouter := service_layer.APIRouter{Router: e}
-	api.InitRoute(apiRouter.Group("/api"))
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	a.initRoute()
 
 	// started app
-	e.Logger.Fatal(e.Start(":8080"))
+	a.app.Logger.Fatal(a.app.Start(":8080"))
+}
+
+func NewApp() {
+	e := echo.New()
+	app := App{app: e}
+	app.Start()
 
 }

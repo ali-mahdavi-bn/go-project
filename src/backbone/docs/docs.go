@@ -4,16 +4,16 @@ package docs
 import (
 	"github.com/swaggo/swag"
 	"go-tel/src/backbone/api"
-	"go-tel/src/backbone/api/middleware"
 	"go-tel/src/backbone/service_layer"
 )
 
 var DocTemplate = addSwagger()
 
 func addSwagger() string {
-	e := middleware.NewAPIRouter(true)
+	e := service_layer.NewAPIRouter(true)
 	api.InitRoute(e.Group("/api"))
-	return service_layer.Add()
+	swaggerDoc := service_layer.AddSwaggerDoc()
+	return swaggerDoc
 }
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it

@@ -3,31 +3,17 @@ package products
 import (
 	"go-tel/src"
 	"go-tel/src/backbone/service_layer"
+	"go-tel/src/products/service_layer/handlers"
 )
 
-var Dependencies = map[string]any{
-	"uow": src.NewGormUnitOfWork(),
-}
-var name = src.NewGormUnitOfWork()
-
-type Bootstrap struct {
-	commands map[string]service_layer.Command
-}
-
-func NewBootstrap() *Bootstrap {
-	return &Bootstrap{
-		commands: make(map[string]service_layer.Command),
+func Bootstrap() service_layer.MessageBus {
+	dependencies := map[string]any{
+		"uow": src.NewUnitOfWork(),
 	}
-}
 
-func (h *Bootstrap) Handle(command service_layer.Command) error {
-	commandDependencies := command.GetDependencies()
-	injectDependency := make(map[string]any)
-	for _, i := range commandDependencies {
-		if v, ok := Dependencies[i]; ok {
-			injectDependency[i] = v
-		}
+	commandHandlers := service_layer.InjectHandlers(handlers.Handlers)
+	return service_layer.MessageBus{
+		CommandHandlers: commandHandlers,
+		Dependencies:    dependencies,
 	}
-	resultCommandHandler := command.CommandHandler(injectDependency)
-	return resultCommandHandler
 }
